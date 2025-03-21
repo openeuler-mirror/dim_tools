@@ -8,6 +8,7 @@
 #include "baseline.h"
 
 #define ROUND_UP(n, d) (((n) + (d) - 1) / (d) * (d))
+#define ROUND_DOWN(n, d) ((n) / (d) * (d))
 
 enum DimElfClass {
     DIM_ELF_EXEC_64,
