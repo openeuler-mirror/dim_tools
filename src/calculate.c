@@ -98,10 +98,11 @@ static int DimHashCalElf64Segment(const char *path, int elfFd, EVP_MD_CTX *mdCtx
 {
     ssize_t len;
     size_t readSize, dealSize, calSize;
-    int pageSize = 0;
     long startAddr = 0;
+    long offsetAddr = 0;
 
     startAddr = g_pagesize == 0 ? phdr->p_offset : ROUND_DOWN(phdr->p_offset, g_pagesize);
+    offsetAddr = phdr->p_offset - startAddr;
     if (lseek(elfFd, startAddr, SEEK_SET) == -1) {
         (void)fprintf(stderr, "Fail to set seek of %s: %s\n", path, strerror(errno));
         return -1;
@@ -113,8 +114,9 @@ static int DimHashCalElf64Segment(const char *path, int elfFd, EVP_MD_CTX *mdCtx
         return -1;
     }
 
+    memset(buf, 0, CAL_BUF_SIZE);
     dealSize = 0;
-    calSize = g_pagesize == 0 ? phdr->p_filesz : ROUND_UP(phdr->p_filesz, g_pagesize);
+    calSize = g_pagesize == 0 ? phdr->p_filesz : ROUND_UP(phdr->p_filesz + offsetAddr, g_pagesize);
     while (dealSize < calSize) {
         readSize = calSize - dealSize < CAL_BUF_SIZE ?
             calSize - dealSize :
